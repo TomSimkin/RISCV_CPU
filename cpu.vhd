@@ -25,7 +25,7 @@ entity cpu is
 	Port ( 
 			 clk_in : in STD_LOGIC;
 			 reset : in STD_LOGIC
-			);
+		   );
 end cpu;
 
 architecture Behavioral of cpu is
@@ -40,7 +40,8 @@ architecture Behavioral of cpu is
 			 rD_data_in : in  STD_LOGIC_VECTOR (15 downto 0);
 			 sel_rA_in : in  STD_LOGIC_VECTOR (2 downto 0);
 			 sel_rB_in : in  STD_LOGIC_VECTOR (2 downto 0);
-			 sel_rD_in : in  STD_LOGIC_VECTOR (2 downto 0));
+			 sel_rD_in : in  STD_LOGIC_VECTOR (2 downto 0)
+			);
 	end component;
 	
 	component decoder
@@ -52,7 +53,8 @@ architecture Behavioral of cpu is
           write_enable_out : out  STD_LOGIC;
           sel_rA_out : out  STD_LOGIC_VECTOR (2 downto 0);
           sel_rB_out : out  STD_LOGIC_VECTOR (2 downto 0);
-          sel_rD_out : out  STD_LOGIC_VECTOR (2 downto 0));
+          sel_rD_out : out  STD_LOGIC_VECTOR (2 downto 0)
+			);
 	end component;
 	
 	component alu
@@ -66,31 +68,34 @@ architecture Behavioral of cpu is
           result_out : out  STD_LOGIC_VECTOR (15 downto 0);
           branch_out : out  STD_LOGIC;
           rD_write_enable_in : in  STD_LOGIC;
-          rD_write_enable_out : out  STD_LOGIC);
+          rD_write_enable_out : out  STD_LOGIC
+			);
 	end component;
 	
 	component controlunit
 	Port ( clk_in : in  STD_LOGIC;
           reset_in : in  STD_LOGIC;
           alu_op_in : in  STD_LOGIC_VECTOR (4 downto 0);
-          stage_out : out  STD_LOGIC_VECTOR (5 downto 0));
+          stage_out : out  STD_LOGIC_VECTOR (5 downto 0)
+			);
 	end component;
 	
 	component pcunit
 	Port ( clk_in : in  STD_LOGIC;
           pc_op_in : in  STD_LOGIC_VECTOR (1 downto 0);
           pc_in : in  STD_LOGIC_VECTOR (15 downto 0);
-          pc_out : out  STD_LOGIC_VECTOR (15 downto 0));
+          pc_out : out  STD_LOGIC_VECTOR (15 downto 0)
+			);
 	end component;
 	
 	component ram
 	Port ( clk_in : in  STD_LOGIC;
           reset : in  STD_LOGIC;
-          enable_in : in  STD_LOGIC;
           write_enable_in : in  STD_LOGIC;
           address_in : in  STD_LOGIC_VECTOR (15 downto 0);
           data_in : in  STD_LOGIC_VECTOR (15 downto 0);
-          data_out : out  STD_LOGIC_VECTOR (15 downto 0));
+          data_out : out  STD_LOGIC_VECTOR (15 downto 0)
+			);
 	end component;
 	
 	-- SIGNAL DECLERATION --
@@ -138,8 +143,7 @@ architecture Behavioral of cpu is
 	
 	-- OTHERS -- 
 	
-	signal cpu_clock : std_logic := '0'; -- HIGH PRIORITY CLOCK
-	signal instruction : std_logic_vector (15 downto 0) := (others => '0'); -- DECODER + ALU 
+	signal instruction : std_logic_vector (15 downto 0) := (others => '0');
 	signal alu_op : std_logic_vector (4 downto 0) := (others => '0'); -- DECODER + ALU + CONTROLUNIT 
 	signal immediate : std_logic_vector (7 downto 0) := (others => '0'); -- DECODER + ALU 
 	signal cpu_reset : std_logic := '0'; -- CONTROLUNIT + RAM 
@@ -149,7 +153,7 @@ architecture Behavioral of cpu is
 begin
 	
 	cpu_registerfile : registerfile PORT MAP (
-        clk_in => cpu_clock,
+        clk_in => clk_in,
         enable_in => reg_enable,
         write_enable_in => reg_write_enable,
         rA_data_out => rA_data,
@@ -161,7 +165,7 @@ begin
     );
 	
 	cpu_decoder : decoder PORT MAP (
-		  clk_in => cpu_clock,
+		  clk_in => clk_in,
 		  enable_in => decoder_enable,
 		  instruction_in => instruction,
 		  alu_op_out => alu_op,
@@ -173,7 +177,7 @@ begin
     );
 	 
 	 cpu_alu : alu PORT MAP (
-        clk_in => cpu_clock,
+        clk_in => clk_in,
         enable_in => alu_enable,
         alu_op_in => alu_op,
         pc_in => pc_out,
@@ -187,32 +191,28 @@ begin
     );
 	 
 	 cpu_controlunit : controlunit PORT MAP (
-        clk_in => cpu_clock,
-        reset_in => cpu_reset,
+        clk_in => clk_in,
+        reset_in => reset,
         alu_op_in => alu_op,
         stage_out => stage
     );
 	 
 	 cpu_pcunit : pcunit PORT MAP (
-        clk_in => cpu_clock,
+        clk_in => clk_in,
         pc_op_in => pc_op,
         pc_in => pc_in,
         pc_out => pc_out
     );
 	 
 	 cpu_ram : ram PORT MAP (
-        clk_in => cpu_clock,
-        reset => cpu_reset,
-        enable_in => ram_enable,
+        clk_in => clk_in,
+        reset => reset,
         write_enable_in => ram_write_enable,
         address_in => address,
         data_in => ram_data_in,
         data_out => ram_data_out
     );
 	 
-	 -- CPU -- 
-	 cpu_clock <= clk_in;
-	 cpu_reset <= reset;
 	 
 	 -- REGFILE --
 	 

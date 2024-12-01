@@ -39,12 +39,14 @@ architecture Behavioral of registerfile is
 begin
 	process(clk_in) 
 	begin
-		if rising_edge(clk_in) and enable_in = '1' then
-			rA_data_out <= reg_file(to_integer(unsigned(sel_rA_in)));
-			rB_data_out <= reg_file(to_integer(unsigned(sel_rB_in)));
+		if rising_edge(clk_in)then 
+			if enable_in = '1' then
+				rA_data_out <= reg_file(to_integer(unsigned(sel_rA_in)));
+				rB_data_out <= reg_file(to_integer(unsigned(sel_rB_in)));
 			
-			if write_enable_in = '1' then
-				reg_file(to_integer(unsigned(sel_rD_in))) <= rD_data_in;
+				if write_enable_in = '1' then
+					reg_file(to_integer(unsigned(sel_rD_in))) <= rD_data_in;
+				end if;
 			end if;
 		end if;
 	end process;
